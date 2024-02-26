@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sort</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        .box {
+            height: 50px;
+            width: 50px;
+            text-align: center;
+            border: 2px solid black;
+            margin: 5px;
+        }
+
+        #id1,
+        #id2,
+        #id3 {
+            display: flex;
+        }
+
+        /* #id3 {
+            flex-direction: row;
+            flex-wrap: wrap;
+        } */
+    </style>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"> -->
+    <script>
+        function values() {
+            var data = document.getElementById('value').value;
+            var str = ``;
+            var k = 0, arr = [];
+            for (var i = 0; i < data.length; i++) {
+                if (data[i] == ' ') {
+                    var val = Number(str);
+                    arr[k] = val;
+                    k++;
+                    str = ``;
+                }
+                else {
+                    str = str + data[i];
+                }
+            }
+            return arr;
+        }
+        function box(a) {
+            var str = ``;
+            for (var i = 0; i < a.length; i++) {
+                str = str + `<div class="box">` + a[i] + `</div>`;
+            }
+            return str;
+        }
+        function unsorted() {
+            var a = values();
+            var str = box(a);
+            document.getElementById('id1').innerHTML = str;
+            return a;
+        }
+        function sorted(a) {
+            console.log(a);
+            document.getElementById('id2').innerHTML = box(a);
+        }
+        function step(temp) {
+            var str = ``;
+            var newElem = document.createElement("BR");
+            for (var l = 0; l < temp.length; l++) {
+                str = str + box(temp[l]);
+            }
+            document.getElementById('id3').innerHTML = str;
+        }
+        function bubble() {
+            var a = unsorted();
+            var temp = [], t, flag = 0;
+            for (var i = 0; i < a.length - 1; i++) {
+                temp[i] = [];
+                for (var k = 0; k < a.length; k++) {
+                    temp[i][k] = a[k];
+                }
+                for (var j = 0; j < a.length - i - 1; j++) {
+                    if (a[j] > a[j + 1]) {
+                        t = a[j];
+                        a[j] = a[j + 1];
+                        a[j + 1] = t;
+                        flag = 1;
+                    }
+                }
+                if (flag == 0) {
+                    break;
+                }
+            }
+            step(temp);
+            sorted(a);
+        }
+        function selection() {
+            var a = unsorted();
+            var temp = [], l, t;
+            for (var i = 0; i < a.length - 1; i++) {
+                temp[i] = [];
+                l = i;
+                for (var k = 0; k < a.length; k++) {
+                    temp[i][k] = a[k];
+                }
+                for (var j = i + 1; j < a.length; j++) {
+                    if (a[l] > a[j]) {
+                        l = j;
+                    }
+                }
+                if (l != i) {
+                    t = a[l];
+                    a[l] = a[i];
+                    a[i] = t;
+                }
+            }
+            step(temp);
+            sorted(a);
+        }
+        function insertion() {
+            var a = unsorted();
+            var temp = [], t;
+            for (var i = 1; i < a.length; i++) {
+                t = a[i];
+                j = i - 1;
+                while (j >= 0 && a[j] > t) {
+                    a[j + 1] = a[j];
+                    j--;
+                }
+                a[j + 1] = t;
+            }
+            step(temp);
+            sorted(a);
+        }
+        function quick() {
+            var a = unsorted();
+            // var temp = [], t;
+            quick_Sort(a, 0, a.length);
+            // step(temp);
+            sorted(a);
+        }
+        function quick_Sort(a, l, u) {
+            if (l < u) {
+                var loc = part(a, l, u);
+                quick_Sort(a, l, loc - 1);
+                quick_Sort(a, loc + 1, u);
+            }
+        }
+        function part(a, l, u) {
+            var piv = a[l], s = l, e = u, t;
+            while (s < e) {
+                while (a[s] <= piv) {
+                    s++;
+                }
+                while (a[e] > piv) {
+                    e--;
+                }
+                if (s < e) {
+                    t = a[s];
+                    a[s] = a[e];
+                    a[e] = t;
+                }
+            }
+            t = a[l];
+            a[l] = a[e];
+            a[e] = t;
+            return e;
+        }
+        function merge_Sort(a, l, u) {
+            if (l < u) {
+                var m = parseInt(l + (u - l) / 2);
+                merge_Sort(a, l, m);
+                merge_Sort(a, m + 1, u);
+                sort(a, l, m, u);
+            }
+        }
+        function sort(a, l, m, u) {
+            var i, j, k, n1 = m - l + 1, n2 = u - m, L = [n1], R = [n2];
+            for (i = 0; i < n1; i++) {
+                L[i] = a[l + i];
+            }
+            for (j = 0; j < n2; j++) {
+                R[j] = a[m + 1 + j];
+            }
+            i = j = 0, k = l;
+            while (i < n1 && j < n2) {
+                if (L[i] <= R[j]) {
+                    a[k] = L[i];
+                    i++;
+                }
+                else {
+                    a[k] = R[j];
+                    j++;
+                }
+                k++;
+            }
+            while (i < n1) {
+                a[k] = L[i];
+                i++;
+                k++;
+            }
+            while (j < n2) {
+                a[k] = R[j];
+                j++;
+                k++;
+            }
+        }
+        function merge() {
+            var a = unsorted();
+            merge_Sort(a, 0, a.length);
+            // step(temp);
+            sorted(a);
+        }
+    </script>
+</head>
+
+<body>
+    <h1 style="text-align: center;">Sorting</h1>
+    <form>
+        <div class="input-group">
+            <input type="text" id="value" class="form-control" aria-label="Text input with segmented dropdown button"
+                placeholder="Enter data with a space">
+            <button type="submit" class="btn btn-outline-secondary">Techniques</button>
+            <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" onclick="bubble();">Bubble Sort</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" onclick="selection();">Selection Sort</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" onclick="insertion();">Insertion Sort</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" onclick="merge();">Merge Sort</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" onclick="quick();">Ouick Sort</a></li>
+            </ul>
+        </div>
+    </form>
+    <div>Unsorted Data:
+        <div id="id1"></div>
+    </div>
+    <div>Steps:
+        <div id="id3"></div>
+    </div>
+    <div>Sorted Data:
+        <div id="id2"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

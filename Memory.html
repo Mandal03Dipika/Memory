@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100%;
+            background-image: linear-gradient(#789f35, #003333, #550000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            background-color: #aa3939;
+            border-radius: 5px;
+
+        }
+
+        h1 {
+            font-size: 2rem;
+            letter-spacing: 0.2rem;
+            color: #d4ee9f;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 150px 150px 150px 150px;
+            grid-template-rows: 150px 150px 150px 150px;
+            border: 1px solid #550000;
+            border-radius: 5px;
+        }
+
+        .card {
+            outline: none;
+            cursor: pointer;
+            width: 100px;
+            height: 140px;
+            border-radius: 5px;
+        }
+
+        .card-inner {
+            position: relative;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .flip-card {
+            border: 1px solid #550000;
+            background-color: #003333;
+            outline: none;
+            cursor: pointer;
+            width: 100px;
+            height: 140px;
+            margin: 26px;
+            margin-top: 5px;
+            border-radius: 5px;
+            perspective: 1000px;
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+
+        .flipped {
+            transform: rotateY(180deg);
+        }
+
+        .match {
+            transform: rotateY(180deg);
+        }
+
+        .card-front {
+            color: #789f35;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .footer {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer button {
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 5px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            width: 80px;
+            background-color: #d4ee9f;
+            color: #003333;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .footer button:hover {
+            color: #d4ee9f;
+            background-color: #003333;
+        }
+
+        .footer span {
+            flex: 1;
+            text-align: center;
+            font-size: 20px;
+            color: #d4ee9f;
+            font-weight: bold;
+        }
+
+        /* @media (max-width:460px) {
+            body {
+                width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: 110px 110px 110px 110px;
+                grid-template-rows: 110px 110px 110px 110px;
+            }
+
+            .flip-card {
+                width: 100px;
+                height: 100px;
+                margin: 0px;
+                margin-top: 5px;
+            }
+
+            .card-front {
+                font-size: 17px;
+            }
+
+            .card {
+                height: 100px;
+            }
+        } */
+    </style>
+</head>
+
+<body>
+    <!-- <h2 id="won">You won!!</h2> -->
+    <div class="container">
+        <h1>MEMORY GAME</h1>
+        <div class="grid" id="grid">
+        </div>
+        <div class="footer">
+            <button id="start" onclick="window.location.reload();">Start</button>
+            <span id="move">Move: 100</span>
+            <span id="time">Time: 100</span>
+        </div>
+    </div>
+</body>
+<script>
+    var img;
+    var count = 0;
+    // let a = ['Image/1.jpeg', 'Image/2.jpeg', 'Image/3.jpeg', 'Image/4.jpeg', 'Image/5.jpeg', 'Image/6.jpeg', 'Image/7.jpeg', 'Image/8.jpeg'];
+    var k = 0;
+    var key_data = [
+        { num: 1, className: 'fresh', image: 'Image/1.jpeg' },
+        { num: 2, className: 'fresh', image: 'Image/2.jpeg' },
+        { num: 3, className: 'fresh', image: 'Image/3.jpeg' },
+        { num: 4, className: 'fresh', image: 'Image/4.jpeg' },
+        { num: 5, className: 'fresh', image: 'Image/5.jpeg' },
+        { num: 6, className: 'fresh', image: 'Image/6.jpeg' },
+        { num: 7, className: 'fresh', image: 'Image/7.jpeg' },
+        { num: 8, className: 'fresh', image: 'Image/8.jpeg' },
+    ];
+    key_data = key_data.concat(key_data);
+
+    var prev = 0, prev_index = 0;
+
+    timer();
+    random_data();
+
+    function random_data() {
+        do {
+            var value = Math.floor(Math.random() * 16);
+            if (value != 0) {
+                var temp = key_data[0];
+                key_data[0] = key_data[value];
+                key_data[value] = temp;
+            }
+            k++;
+        }
+        while (k < 16);
+        populate();
+    }
+
+    function populate() {
+        var str = ``;
+        for (let i = 0; i < key_data.length; i++) {
+            img = key_data[i]['image'];
+            str = str + `<div class="flip-card">
+                <div class="card-inner ${key_data[i]['className']}">
+                    <div class="card-front" onclick='flip(${i},this);'>Choose Me!!</div>
+                    <div class="card-back">
+                        <img src=${img} class="card">
+                    </div>
+                </div>
+            </div>`;
+        }
+        document.getElementById('grid').innerHTML = str;
+    }
+
+    function move() {
+        count++;
+        document.getElementById('move').innerHTML = "Move: " + count;
+        if (count > 0) {
+            document.getElementById('start').innerHTML = "Reset";
+        }
+    }
+
+    function timer() {
+        var min = 0;
+        var sec = 0;
+        var timer = setInterval(function () {
+            document.getElementById('time').innerHTML = `Time : ${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+            sec++;
+            if (sec == 60) {
+                min++;
+                sec = 0;
+            }
+        }, 1000);
+    }
+
+    function flip(index, e) {
+        e.parentNode.classList.add('flipped');
+        move();
+        game(index);
+    }
+
+    function stop_flip() {
+        var cards = document.querySelectorAll('.flipped');
+        cards.forEach((card) => {
+            card.classList.toggle('flipped');
+        });
+    }
+
+    function game(index) {
+        if (prev == 0) {
+            prev = key_data[index];
+            prev_index = index;
+            return;
+        }
+        if (prev['num'] != 0) {
+            if (key_data[index]['num'] == prev['num']) {
+                key_data[index]['className'] = 'match';
+                key_data[prev_index]['className'] = 'match';
+                populate();
+                prev = 0;
+                return;
+            }
+            else {
+                prev = 0;
+                setTimeout(() => {
+                    stop_flip();
+                }, 1000);
+            }
+        }
+        else {
+            prev = key_data[index];
+        }
+        over();
+    }
+    function over() {
+        var flag = 0;
+        for (let i = 0; i < key_data.length; i++) {
+            if (key_data[i]['value'] == 'fresh') {
+                flag = 1;
+                break;
+            }
+        }
+        if (flag == 1) {
+            document.getElementById('grid').innerHTML = "YOU WON!!";
+        }
+    }
+
+</script>
+
+</html>
